@@ -255,7 +255,7 @@ SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
     new Auth("sd", "localhost", 3306, "root", ""),  // DB connection
     new DatabaseQuery(),                            // Query implementation
     new UserManipulator(),                          // Data manipulator
-    false,                                           // Enable async (Recommended false)
+    false,                                          // Enable async (Recommended false)
     false,                                          // Enable Debug
     "./tmp"                                         // Temporary storage directory (optional)
 );
@@ -266,15 +266,13 @@ SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
 skyDatabase.exit();
 ```
 
-This is the constructor plugin developer
+This is the constructor plugin developer (Recommended Constructor)
 ```java
 SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
         plugin,                                         // Put here the instance of the plugin
         new Auth("sd", "localhost", 3306, "root", ""),  // DB connection
         new DatabaseQuery(),                            // Query implementation
-        new UserManipulator(),                          // Data manipulator
-        true,                                           // Enable async (Recommended false)
-        false                                           // Enable Debug
+        new UserManipulator()                           // Data manipulator
 );
 
 ```
