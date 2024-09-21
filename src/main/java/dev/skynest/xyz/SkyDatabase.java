@@ -95,7 +95,9 @@ public class SkyDatabase<T extends IData> {
     public T getOrCreate(String name) {
         if(checkLoad()) return null;
 
+        long time = System.currentTimeMillis();
         T data = get(name);
+        System.out.println((time - System.currentTimeMillis()) + "ms");
         if(data == null) {
             data = userManipulator.create(name);
             container.getDatas().put(name, data);

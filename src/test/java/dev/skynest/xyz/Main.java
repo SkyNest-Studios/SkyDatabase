@@ -1,10 +1,12 @@
 package dev.skynest.xyz;
 
+import dev.skynest.xyz.graph.GraphGUI;
 import dev.skynest.xyz.user.UserData;
 import dev.skynest.xyz.user.query.DatabaseQuery;
 import dev.skynest.xyz.database.auth.Auth;
 import dev.skynest.xyz.user.manipulator.UserManipulator;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -105,28 +107,47 @@ public class Main {
                     if (parts.length > 1) {
                         int testnum = Integer.parseInt(parts[1]);
                         List<UUID> uuids = new ArrayList<>(testnum);
+                        List<Long> saveTimes = new ArrayList<>();
+                        List<Long> removeTimes = new ArrayList<>();
+
                         System.out.println("Loading uuid...");
                         for (int i = 0; i < testnum; i++) {
                             uuids.add(UUID.randomUUID());
                         }
                         System.out.println("Testing...");
-                        long time = System.currentTimeMillis();
+
+                        long startTime = System.currentTimeMillis();
+                        // Test per save
                         for (int i = 0; i < testnum; i++) {
                             skyDatabase.getOrCreate(uuids.get(i).toString());
+                            long endTime = System.currentTimeMillis();
+                            saveTimes.add(endTime - startTime);
                         }
+                        // 4d474d2a-5f17-4513-a474-e665f5591eed
+                        long startTime2 = System.currentTimeMillis();
+                        // Test per remove
                         for (int i = 0; i < testnum; i++) {
                             skyDatabase.remove(uuids.get(i).toString());
+                            long endTime = System.currentTimeMillis();
+                            removeTimes.add(endTime - startTime2);
                         }
-                        System.out.println("test! (" + (System.currentTimeMillis() - time) + "ms)");
+
+                        System.out.println("Test completati.");
+                        SwingUtilities.invokeLater(() -> new GraphGUI(saveTimes, removeTimes).setVisible(true));
                     } else {
                         System.out.println("Insufficient arguments. Usage: test <power>");
                     }
                     break;
+
+
                 default:
                     System.out.println("Unknown command: " + command);
                     break;
             }
         }
     }
+
+
+
 
 }

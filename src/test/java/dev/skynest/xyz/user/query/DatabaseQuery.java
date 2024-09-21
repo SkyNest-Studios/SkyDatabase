@@ -33,14 +33,15 @@ public class DatabaseQuery implements IQuery<UserData> {
 
     @Override
     public void setDatas(List<UserData> list, Connection connection) {
-        String query = "INSERT INTO users (name, money) VALUES (?, ?) ON DUPLICATE KEY UPDATE money =?";
+        String query = "INSERT INTO users (name, money) VALUES (?, ?) ON DUPLICATE KEY UPDATE money = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             for (UserData user : list) {
                 stmt.setString(1, user.getName());
                 stmt.setInt(2, user.getMoney());
                 stmt.setInt(3, user.getMoney());
-                stmt.executeUpdate();
+                stmt.addBatch();
             }
+            stmt.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
