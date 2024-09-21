@@ -44,13 +44,27 @@ public class SkyDatabase<T extends IData> {
         this(plugin, auth, query, userManipulator, "tmp", async, debug);
     }
 
+    public SkyDatabase(Plugin plugin, Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator) {
+        this(plugin, auth, query, userManipulator, "tmp", false, false);
+    }
+
     public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch, boolean async, boolean debug) {
         this(null, auth, query, userManipulator, patch, async, debug);
+    }
+
+    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch) {
+        this(null, auth, query, userManipulator, patch, false, false);
     }
 
     public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, boolean async, boolean debug) {
         this(null, auth, query, userManipulator, "./tmp", async, debug);
     }
+
+    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator) {
+        this(null, auth, query, userManipulator, "./tmp", false, false);
+    }
+
+
 
 
     public void exit() {

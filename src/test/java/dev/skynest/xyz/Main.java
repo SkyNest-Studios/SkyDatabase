@@ -18,9 +18,7 @@ public class Main {
         SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
                 new Auth("sd", "localhost", 3306, "root", ""),
                 new DatabaseQuery(),
-                userManipulator,
-                true,
-                false
+                userManipulator
         );
 
 
