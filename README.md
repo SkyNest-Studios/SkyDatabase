@@ -32,7 +32,7 @@ Add the following repository and dependency to your `pom.xml` file:
 ```xml
 <repository>
     <id>skynest-repo</id>
-    <url>http://repo.skynest.xyz:8080/releases</url>
+    <url>https://repo.skynest.xyz/releases</url>
 </repository>
 
 <dependency>
@@ -49,7 +49,7 @@ For Gradle, add the following lines to your `build.gradle` file:
 ```groovy
 repositories {
     maven {
-        url 'http://repo.skynest.xyz:8080/releases'
+        url 'https://repo.skynest.xyz/releases'
     }
 }
 
@@ -63,7 +63,7 @@ dependencies {
 ```groovy
 repositories {
     maven {
-        url 'http://repo.skynest.xyz:8080/releases'
+        url 'https://repo.skynest.xyz/releases'
     }
 }
 
