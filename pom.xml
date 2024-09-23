@@ -6,7 +6,7 @@
 
     <groupId>dev.skynest.xyz</groupId>
     <artifactId>SkyDatabase</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-BETA</version>
 
     <properties>
         <java.version>1.8</java.version>
@@ -56,9 +56,9 @@
             <version>4.0.3</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.jfree</groupId>
