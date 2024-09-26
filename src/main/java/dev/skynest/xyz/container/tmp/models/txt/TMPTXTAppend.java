@@ -1,38 +1,58 @@
-package dev.skynest.xyz.container.tmp;
+package dev.skynest.xyz.container.tmp.models.txt;
 
-import dev.skynest.xyz.interfaces.IData;
 import dev.skynest.xyz.container.DatabaseContainer;
 import dev.skynest.xyz.container.debug.DebugManager;
+import dev.skynest.xyz.interfaces.IData;
 import dev.skynest.xyz.interfaces.IDataManipulator;
+import dev.skynest.xyz.interfaces.TMP;
 import dev.skynest.xyz.utils.AsyncManager;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
-public class TMPUtils<T extends IData> {
+public class TMPTXTAppend<T extends IData> implements TMP<T> {
 
-    public final String patch;
-    public final IDataManipulator<T> userManipulator;
-    public final DatabaseContainer<T> databaseContainer;
-    private final AsyncManager async;
-    private final boolean asyncMode;
-    private final boolean debug;
-    private DebugManager saveDebug;
-    private final List<String> lines;
+    private String patch;
+    private IDataManipulator<T> userManipulator;
+    private DatabaseContainer<T> databaseContainer;
+    private List<String> lines;
+    private boolean enabledAsync;
+    private boolean enabledDebug;
+    private AsyncManager async;
+    private DebugManager debug;
 
-    public TMPUtils(String patch, IDataManipulator<T> userManipulator, DatabaseContainer<T> databaseContainer, boolean async, boolean debug) {
+    @Override
+    public List<String> load(String patch, IDataManipulator<T> userManipulator, DatabaseContainer<T> databaseContainer, AsyncManager async, DebugManager debug, boolean enabledAsync, boolean enabledDebug) {
         this.patch = patch;
         this.userManipulator = userManipulator;
         this.databaseContainer = databaseContainer;
-        this.async = new AsyncManager(1, "tmp-writer");
-        this.asyncMode = async;
-        this.debug = debug;
         this.lines = new ArrayList<>();
-        if (debug) {
-            this.saveDebug = new DebugManager();
-        }
+        this.enabledAsync = enabledAsync;
+        this.enabledDebug = enabledDebug;
+        this.async = async;
+        this.debug = debug;
+
         loadLinesFromFile();
+        return loadLastTmpFile();
+    }
+
+    @Override
+    public void exit() {
+        getLastTMP().delete();
+    }
+
+    @Override
+    public void remove(T data) {
+        markAsRemoved(data.getName());
+    }
+
+    @Override
+    public void save(T data) {
+        saveToTmpFile(data);
     }
 
     private void loadLinesFromFile() {
@@ -47,22 +67,7 @@ public class TMPUtils<T extends IData> {
         }
     }
 
-    public List<String> loadLastTmpFile() {
-        List<String> toRemove = new ArrayList<>();
-        for (String line : lines) {
-            if (line.startsWith("REMOVE ")) {
-                toRemove.add(line.replace("REMOVE ", ""));
-            } else {
-                T user = userManipulator.fromString(line);
-                if (user != null) {
-                    databaseContainer.getDatas().put(user.getName(), user);
-                }
-            }
-        }
-        return toRemove;
-    }
-
-    public File getLastTMP() {
+    private File getLastTMP() {
         File dir = new File(patch);
         if (!dir.exists()) dir.mkdirs();
 
@@ -81,6 +86,21 @@ public class TMPUtils<T extends IData> {
         }
     }
 
+    private List<String> loadLastTmpFile() {
+        List<String> toRemove = new ArrayList<>();
+        for (String line : lines) {
+            if (line.startsWith("REMOVE ")) {
+                toRemove.add(line.replace("REMOVE ", ""));
+            } else {
+                T user = userManipulator.fromString(line);
+                if (user != null) {
+                    databaseContainer.getDatas().put(user.getName(), user);
+                }
+            }
+        }
+        return toRemove;
+    }
+
     private File createNewTmpFile(File dir) {
         File newTmpFile = new File(dir, "tmp-" + System.currentTimeMillis() + ".txt");
         try {
@@ -95,20 +115,19 @@ public class TMPUtils<T extends IData> {
         return newTmpFile;
     }
 
-    public void markAsRemoved(String playerName) {
-        if (asyncMode) async.run(() -> markAsRemoved0(playerName));
+    private void markAsRemoved(String playerName) {
+        if (enabledAsync) async.run(() -> markAsRemoved0(playerName));
         else markAsRemoved0(playerName);
     }
 
-    public void saveToTmpFile(T user) {
-        if (asyncMode) async.run(() -> saveToTmpFile0(user));
+    private void saveToTmpFile(T user) {
+        if (enabledAsync) async.run(() -> saveToTmpFile0(user));
         else saveToTmpFile0(user);
     }
 
-    public void removeMarkAsRemoved(String playerName) {
+    private void removeMarkAsRemoved(String playerName) {
         lines.removeIf(line -> line.equals("REMOVE " + playerName));
-        saveLinesToFile();
-        if (debug) saveDebug.push(DebugManager.Type.UPDATE);
+        if (enabledDebug) debug.push(DebugManager.Type.UPDATE);
     }
 
     private void saveToTmpFile0(T user) {
@@ -117,27 +136,28 @@ public class TMPUtils<T extends IData> {
         String userString = userManipulator.inString(user);
         if (!lines.contains(userString)) {
             lines.add(userString);
-            saveLinesToFile();
+            appendLineToFile(userString);
         }
-        if (debug) saveDebug.push(DebugManager.Type.SAVE);
+        if (enabledDebug) debug.push(DebugManager.Type.SAVE);
     }
 
     private void markAsRemoved0(String playerName) {
         String removeEntry = "REMOVE " + playerName;
         if (!lines.contains(removeEntry)) {
             lines.add(removeEntry);
-            saveLinesToFile();
+            appendLineToFile(removeEntry);
         }
-        if (debug) saveDebug.push(DebugManager.Type.REMOVE);
+        if (enabledDebug) debug.push(DebugManager.Type.REMOVE);
     }
 
-    private void saveLinesToFile() {
+    private void appendLineToFile(String line) {
         File tmpFile = getLastTMP();
+        if (tmpFile == null) return;
+
         try {
-            Files.write(tmpFile.toPath(), lines, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(tmpFile.toPath(), (line + System.lineSeparator()).getBytes(), StandardOpenOption.WRITE, StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }

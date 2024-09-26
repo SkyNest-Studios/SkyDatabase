@@ -7,6 +7,7 @@ import dev.skynest.xyz.exeptions.DatabaseNotArealLoaded;
 import dev.skynest.xyz.interfaces.IQuery;
 import dev.skynest.xyz.interfaces.IData;
 import dev.skynest.xyz.interfaces.IDataManipulator;
+import dev.skynest.xyz.interfaces.Type;
 import dev.skynest.xyz.listeners.AsyncJoinEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -21,47 +22,49 @@ public class SkyDatabase<T extends IData> {
     private Database<T> database;
     private DatabaseContainer<T> container;
     private IDataManipulator<T> userManipulator;
+    private Type type;
     private boolean async;
 
     // Bukkit - facultative | Is only for MC plugin developer
     private Plugin plugin;
 
-    public SkyDatabase(Plugin plugin, Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch, boolean async, boolean debug) {
+    public SkyDatabase(Plugin plugin, Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch, Type type, boolean async, boolean debug) {
         this.auth = auth;
         this.query = query;
         this.database = new Database(auth, query);
         this.userManipulator = userManipulator;
+        this.type = type;
 
         String finalPatch = (plugin != null) ? "./plugins/" + plugin.getName() + "/" + patch : patch;
-        this.container = new DatabaseContainer<>(database, userManipulator, finalPatch, async, debug);
+        this.container = new DatabaseContainer<>(database, userManipulator, finalPatch, async, debug, type);
         this.plugin = plugin;
         this.async = async;
 
         if (plugin != null) Bukkit.getPluginManager().registerEvents(new AsyncJoinEvent(container), plugin);
     }
 
-    public SkyDatabase(Plugin plugin, Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, boolean async, boolean debug) {
-        this(plugin, auth, query, userManipulator, "tmp", async, debug);
+    public SkyDatabase(Plugin plugin, Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, Type type, boolean async, boolean debug) {
+        this(plugin, auth, query, userManipulator, "tmp", type, async, debug);
     }
 
-    public SkyDatabase(Plugin plugin, Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator) {
-        this(plugin, auth, query, userManipulator, "tmp", false, false);
+    public SkyDatabase(Plugin plugin, Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, Type type) {
+        this(plugin, auth, query, userManipulator, "tmp", type, false, false);
     }
 
-    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch, boolean async, boolean debug) {
-        this(null, auth, query, userManipulator, patch, async, debug);
+    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch, Type type, boolean async, boolean debug) {
+        this(null, auth, query, userManipulator, patch, type, async, debug);
     }
 
-    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch) {
-        this(null, auth, query, userManipulator, patch, false, false);
+    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, String patch, Type type) {
+        this(null, auth, query, userManipulator, patch, type,false, false);
     }
 
-    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, boolean async, boolean debug) {
-        this(null, auth, query, userManipulator, "./tmp", async, debug);
+    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, boolean async, boolean debug, Type type) {
+        this(null, auth, query, userManipulator, "./tmp", type, async, debug);
     }
 
-    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator) {
-        this(null, auth, query, userManipulator, "./tmp", false, false);
+    public SkyDatabase(Auth auth, IQuery<T> query, IDataManipulator<T> userManipulator, Type type) {
+        this(null, auth, query, userManipulator, "./tmp", type, false, false);
     }
 
 
@@ -95,9 +98,7 @@ public class SkyDatabase<T extends IData> {
     public T getOrCreate(String name) {
         if(checkLoad()) return null;
 
-        long time = System.currentTimeMillis();
         T data = get(name);
-        System.out.println((time - System.currentTimeMillis()) + "ms");
         if(data == null) {
             data = userManipulator.create(name);
             container.getDatas().put(name, data);
