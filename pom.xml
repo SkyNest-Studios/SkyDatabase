@@ -76,7 +76,7 @@
     <distributionManagement>
         <repository>
             <id>skynest-repo</id>
-            <url>http://repo.skynest.xyz:8080/releases</url>
+            <url>https://repo.skynest.xyz/releases</url>
         </repository>
     </distributionManagement>
 
