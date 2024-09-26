@@ -1,6 +1,6 @@
 package dev.skynest.xyz.interfaces;
 
-import dev.skynest.xyz.container.tmp.models.TMPCVSAppend;
+import dev.skynest.xyz.container.tmp.models.cvs.TMPCVSAppend;
 import dev.skynest.xyz.container.tmp.models.cvs.TMPCVSReplace;
 import dev.skynest.xyz.container.tmp.models.txt.TMPTXTAppend;
 import dev.skynest.xyz.container.tmp.models.txt.TMPTXTReplace;
