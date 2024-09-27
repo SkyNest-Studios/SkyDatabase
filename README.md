@@ -251,13 +251,13 @@ To initialize the `SkyDatabase`, you need to provide the following parameters:
 Here’s an example of how to initialize `SkyDatabase`:
 
 ```java
-SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
-    new Auth("sd", "localhost", 3306, "root", ""),  // DB connection
-    new DatabaseQuery(),                            // Query implementation
-    new UserManipulator(),                          // Data manipulator
-    false,                                          // Enable async (Recommended false)
-    false,                                          // Enable Debug
-    "./tmp"                                         // Temporary storage directory (optional)
+SkyDatabase skyDatabase = SkyDatabase.builder()
+    .auth(new Auth("sd", "localhost", 3306, "root", ""))    // DB connection
+    .query(new DatabaseQuery())                             // Query implementation
+    .manipulator(new UserManipulator())                     // Data manipulator
+    .async(false)                                           // Enable async (Recommended false)
+    .debug(false)                                           // Enable Debug
+    .path("./tmp")                                          // Temporary storage directory (optional)
 );
 
 // Perform operations with SkyDatabase...
@@ -268,11 +268,11 @@ skyDatabase.exit();
 
 This is the constructor plugin developer (Recommended Constructor)
 ```java
-SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
-        plugin,                                         // Put here the instance of the plugin
-        new Auth("sd", "localhost", 3306, "root", ""),  // DB connection
-        new DatabaseQuery(),                            // Query implementation
-        new UserManipulator()                           // Data manipulator
+SkyDatabase skyDatabase = SkyDatabase.builder()
+        .plugin(plugin)                                       // Put here the instance of the plugin
+        .auth(new Auth("sd", "localhost", 3306, "root", ""))  // DB connection
+        .query(new DatabaseQuery()),                          // Query implementation
+        .manipulator(new UserManipulator())                   // Data manipulator
 );
 
 ```
