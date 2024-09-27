@@ -1,6 +1,8 @@
 package dev.skynest.xyz;
 
 import dev.skynest.xyz.graph.GraphGUI;
+import dev.skynest.xyz.interfaces.IData;
+import dev.skynest.xyz.interfaces.IQuery;
 import dev.skynest.xyz.interfaces.Type;
 import dev.skynest.xyz.user.UserData;
 import dev.skynest.xyz.user.query.DatabaseQuery;
@@ -49,12 +51,20 @@ public class Main {
 
     public static void main(String[] args) {
         UserManipulator userManipulator = new UserManipulator();
-        SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
-                new Auth("sd", "localhost", 3306, "root", ""),
-                new DatabaseQuery(),
-                userManipulator,
-                Type.TXT_APPEND
-        );
+
+        SkyDatabase skyDatabase = SkyDatabase.builder()
+                .auth(new Auth("sd", "localhost", 3306, "root", ""))
+                .query(new DatabaseQuery())
+                .manipulator(userManipulator)
+                .type(Type.TXT_APPEND)
+                .build();
+
+        //SkyDatabase<UserData> skyDatabase = new SkyDatabase<>(
+        //        new Auth("sd", "localhost", 3306, "root", ""),
+        //        new DatabaseQuery(),
+        //        userManipulator,
+        //        Type.TXT_APPEND
+        //);
 
         Scanner scanner = new Scanner(System.in);
         String command;
@@ -195,9 +205,9 @@ public class Main {
                 System.out.println(String.format("Save Time: %d ms (%.2f ms/op)", saveTime, (double) saveTime / testnum));
 
                 profiler.start();
-                for (UUID uuid : uuids) {
-                    skyDatabase.remove(uuid.toString());
-                }
+                //for (UUID uuid : uuids) {
+                //    skyDatabase.remove(uuid.toString());
+                //}
                 long deleteTime = profiler.stop();
                 System.out.println(String.format("Delete Time: %d ms (%.2f ms/op)", deleteTime, (double) deleteTime / testnum));
 
