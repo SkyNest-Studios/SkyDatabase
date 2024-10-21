@@ -109,11 +109,15 @@ public class Main {
                 case "test":
                     handleTest(parts, skyDatabase);
                     break;
-
+                case "clear":
+                    handleClear(parts, skyDatabase);
+                    break;
                 case "profile":
                     handleProfile();
                     break;
-
+                case "loaded":
+                    System.out.println("Loaded: " + skyDatabase.isLoaded());
+                    break;
                 default:
                     System.out.println("Unknown command: " + command);
                     break;
@@ -163,6 +167,10 @@ public class Main {
         }
     }
 
+    private static void handleClear(String[] parts, SkyDatabase<UserData> skyDatabase) {
+        skyDatabase.clear();
+    }
+
     private static void handleGet(String[] parts, SkyDatabase<UserData> skyDatabase, UserManipulator userManipulator) {
         if (parts.length > 1) {
             String userName = parts[1];
@@ -205,9 +213,9 @@ public class Main {
                 System.out.println(String.format("Save Time: %d ms (%.2f ms/op)", saveTime, (double) saveTime / testnum));
 
                 profiler.start();
-                //for (UUID uuid : uuids) {
-                //    skyDatabase.remove(uuid.toString());
-                //}
+                for (UUID uuid : uuids) {
+                   skyDatabase.remove(uuid.toString());
+                }
                 long deleteTime = profiler.stop();
                 System.out.println(String.format("Delete Time: %d ms (%.2f ms/op)", deleteTime, (double) deleteTime / testnum));
 

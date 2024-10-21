@@ -64,6 +64,14 @@ public class Database<T extends IData> {
         }
     }
 
+    public void remove(List<String> list) {
+        try (Connection connection = dataSource.getConnection()) {
+            query.removeMultiple(list, connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void clear() {
         try (Connection connection = dataSource.getConnection()) {
             query.clear(connection);

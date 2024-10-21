@@ -13,6 +13,7 @@ public interface IQuery<T extends IData> {
 
     // Remove only one user
     void remove(String name, Connection connection);
+    void removeMultiple(List<String> names, Connection connection);
     // Remove all datas for database
     void clear(Connection connection);
 

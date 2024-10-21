@@ -16,6 +16,8 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SkyDatabase<T extends IData> {
 
@@ -70,8 +72,6 @@ public class SkyDatabase<T extends IData> {
     }
 
 
-
-
     public void exit() {
         if (checkLoad()) {
             System.out.println("Load check completed. Exiting without further operations.");
@@ -81,10 +81,14 @@ public class SkyDatabase<T extends IData> {
         container.exit();
 
         System.out.println("Clearing the database...");
-        database.clear();
+        database.remove(container.getDeleted());
 
         System.out.println("Setting data in the database...");
-        database.setDatas(new ArrayList<>(container.getDatas().values()));
+        List<String> modified = container.getModified(); // Resplace only modified
+        System.out.println(modified);
+        List<T> datas = new ArrayList<>(container.getDatas().values().stream().filter(d -> modified.contains(d.getName())).collect(Collectors.toList()));
+        System.out.println(datas);
+        database.setDatas(datas);
 
         System.out.println("Closing the database...");
         database.close();
@@ -120,6 +124,11 @@ public class SkyDatabase<T extends IData> {
     public void remove(String name) {
         if(checkLoad()) return;
         container.remove(get(name));
+    }
+
+    public void clear() {
+        if(checkLoad()) return;
+        container.clear();
     }
 
     public T get(String name) {

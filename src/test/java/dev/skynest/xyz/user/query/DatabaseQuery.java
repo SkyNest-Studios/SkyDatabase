@@ -60,6 +60,25 @@ public class DatabaseQuery implements IQuery<UserData> {
     }
 
     @Override
+    public void removeMultiple(List<String> names, Connection connection) {
+        if (names == null || names.isEmpty()) {
+            return;
+        }
+
+        String query = "DELETE FROM users WHERE name IN (" + String.join(",", names.stream().map(name -> "?").toArray(String[]::new)) + ")";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            for (int i = 0; i < names.size(); i++) {
+                stmt.setString(i + 1, names.get(i));
+            }
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
     public void clear(Connection connection) {
         String query = "DELETE FROM users";
 

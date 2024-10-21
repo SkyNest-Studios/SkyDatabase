@@ -6,7 +6,7 @@ import dev.skynest.xyz.user.UserData;
 public class UserManipulator implements IDataManipulator<UserData> {
     @Override
     public String inString(UserData user) {
-        return user.getName() + ";" + user.getMoney();
+        return user.getName() + ";" + user.getMoney() + ";" + user.getId();
     }
 
     @Override

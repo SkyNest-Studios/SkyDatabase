@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DatabaseContainer<T extends IData> {
 
@@ -23,6 +24,8 @@ public class DatabaseContainer<T extends IData> {
     private final TMPUtils<T> tmp;
 
     @Getter private final Map<String, T> datas;
+    @Getter private final List<String> modified;
+    @Getter private final List<String> deleted;
     @Getter private boolean loaded;
 
     public DatabaseContainer(Database<T> database, IDataManipulator<T> userManipulator, String patch, boolean async, boolean debug, Type type) {
@@ -30,6 +33,8 @@ public class DatabaseContainer<T extends IData> {
         this.database = database;
         this.userManipulator = userManipulator;
         this.datas = new ConcurrentHashMap<>();
+        this.modified = new CopyOnWriteArrayList<>(); // MCE = :((((
+        this.deleted = new CopyOnWriteArrayList<>();
         this.patch = patch;
         this.tmp = new TMPUtils(patch, userManipulator, this, type, async, debug);
 
@@ -61,17 +66,29 @@ public class DatabaseContainer<T extends IData> {
     }
 
     public void save(T newUserData) {
-        String playerName = newUserData.getName();
+        String dataName = newUserData.getName();
 
-        datas.remove(playerName);
-        datas.put(playerName, newUserData);
+        datas.remove(dataName);
+        datas.put(dataName, newUserData);
 
         tmp.save(newUserData);
+        modified.remove(dataName);
+        modified.add(dataName);
+        deleted.remove(dataName); // recreated data???
     }
 
     public void remove(T data) {
         datas.remove(data.getName());
         tmp.remove(data);
+        deleted.add(data.getName());
+        modified.remove(data.getName());
+    }
+
+    public void clear() {
+        deleted.clear();
+        modified.clear();
+        database.clear();
+        datas.clear();
     }
 
 }
