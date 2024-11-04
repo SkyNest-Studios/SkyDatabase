@@ -38,7 +38,7 @@ Add the following repository and dependency to your `pom.xml` file:
 <dependency>
     <groupId>dev.skynest.xyz</groupId>
     <artifactId>SkyDatabase</artifactId>
-    <version>1.2-BETA</version>
+    <version>1.3-BETA</version>
 </dependency>
 ```
 
@@ -54,7 +54,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.skynest.xyz:SkyDatabase:1.2-BETA'
+    implementation 'dev.skynest.xyz:SkyDatabase:1.3-BETA'
 }
 ```
 
@@ -68,7 +68,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'dev.skynest.xyz', name: 'SkyDatabase', version: '1.2-BETA'
+    compile group: 'dev.skynest.xyz', name: 'SkyDatabase', version: '1.3-BETA'
 }
 ```
 
